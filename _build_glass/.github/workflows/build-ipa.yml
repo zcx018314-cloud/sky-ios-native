@@ -1,0 +1,39 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build archive (unsigned)
+        run: |
+          xcodebuild -scheme GlassSkyTools \
+            -archivePath build/GlassSkyTools.xcarchive \
+            archive -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Package IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/GlassSkyTools.xcarchive/Products/Applications/*.app build/Payload/
+          cd build && zip -r GlassSkyTools-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: GlassSkyTools-unsigned.ipa
+          path: build/GlassSkyTools-unsigned.ipa
