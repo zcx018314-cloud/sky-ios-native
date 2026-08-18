@@ -135,11 +135,6 @@ struct SettingsScreen: View {
                         },
                         brush: LinearGradient(colors: [.danger.opacity(0.25), .danger.opacity(0.1)], startPoint: .top, endPoint: .bottom)
                     )
-                    if let hint = hint {
-                        Text(hint)
-                            .font(.system(size: 12))
-                            .foregroundColor(hintOk ? .ambientCyan : .danger)
-                    }
                 }
                 .padding(.horizontal, 18)
                 .padding(.vertical, 20)
@@ -207,6 +202,17 @@ struct SettingsScreen: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 40)
             }
+            // ---------- 底部浮动提示(显眼,自动消失) ----------
+            if let hint = hint {
+                VStack {
+                    Spacer()
+                    GlassFloatingHint(message: hint, success: hintOk)
+                        .padding(.bottom, 60)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                .allowsHitTesting(false)
+                .animation(.easeInOut(duration: 0.25), value: hint)
+            }
         }
         .task(id: userId) {
             guard let aid = userId else { return }
@@ -221,6 +227,10 @@ struct SettingsScreen: View {
     func show(_ msg: String, _ ok: Bool = true) {
         hint = msg
         hintOk = ok
+        // 2.6 秒后自动消失
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.6) {
+            if hint == msg { hint = nil }
+        }
     }
 
     func settingRow(icon: String, title: String, value: String, action: @escaping () -> Void) -> some View {
@@ -269,9 +279,12 @@ struct SettingsScreen: View {
 
     func handleImage(_ img: UIImage) {
         guard let png = img.pngData() else { show("图片读取失败", false); return }
+        show("正在上传头像…")
         Task {
             do {
                 _ = try await AuthApi.uploadAvatar(token: AuthStore.shared.token ?? "", pngData: png)
+                // 清缓存,强制 AsyncImage 重新拉取新头像
+                URLCache.shared.removeAllCachedResponses()
                 Task { @MainActor in
                     avatarVersion += 1
                     show("头像已更新,聊天中所有人可见")
