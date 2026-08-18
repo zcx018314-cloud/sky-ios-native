@@ -122,17 +122,19 @@ struct GlassTextField: View {
 
     var body: some View {
         TextField("", text: Binding(get: { value }, set: { onValueChange($0) }),
-                  prompt: Text(placeholder).foregroundColor(.white.opacity(0.65)))
+                  // prompt 用纯色(不用 opacity,SwiftUI 在某些渲染下会忽略带透明度的 prompt 颜色)
+                  prompt: Text(placeholder).foregroundColor(Color(hex: 0xFFB8C0E0)))
             .foregroundColor(.white)
             .font(.system(size: 15, weight: .medium))
+            .colorScheme(.dark)  // 强制深色模式渲染,确保 placeholder 颜色被尊重
             .padding(.horizontal, 18)
             .frame(height: 54)
-            // 近不透明深色底:彻底隔离背景图,任何环境下都清晰可读
-            .background(focused ? Color(hex: 0xF0263458) : Color(hex: 0xF01C2744))
+            // 完全不透明底:彻底排除透明度渲染的不确定性
+            .background(focused ? Color(hex: 0xFF263454) : Color(hex: 0xFF1A2540))
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(
                 focused
                     ? LinearGradient(colors: [.accentStart.opacity(0.95), .accentEnd.opacity(0.95)], startPoint: .top, endPoint: .bottom)
-                    : LinearGradient(colors: [.white.opacity(0.30), .white.opacity(0.12)], startPoint: .top, endPoint: .bottom),
+                    : LinearGradient(colors: [.white.opacity(0.35), .white.opacity(0.15)], startPoint: .top, endPoint: .bottom),
                 lineWidth: 1))
             .clipShape(RoundedRectangle(cornerRadius: 18))
             .focused($focused)
