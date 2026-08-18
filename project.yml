@@ -13,6 +13,7 @@ targets:
     sources:
       - path: GlassSkyTools
     info:
+      path: GlassSkyTools/Info.plist
       properties:
         CFBundleDisplayName: 进阶助手
         LSRequiresIPhoneOS: true
