@@ -278,10 +278,10 @@ struct SettingsScreen: View {
     }
 
     func handleImage(_ img: UIImage) {
-        guard let png = img.pngData() else { show("图片读取失败", false); return }
         show("正在上传头像…")
         Task {
             do {
+                guard let png = resizeAvatar(img) else { throw APIError(msg: "图片压缩失败") }
                 _ = try await AuthApi.uploadAvatar(token: AuthStore.shared.token ?? "", pngData: png)
                 // 清缓存,强制 AsyncImage 重新拉取新头像
                 URLCache.shared.removeAllCachedResponses()
@@ -293,6 +293,23 @@ struct SettingsScreen: View {
                 Task { @MainActor in show("上传失败:\(error.localizedDescription)", false) }
             }
         }
+    }
+
+    /// 压缩头像到最长边 512px 再 PNG 编码:
+    /// 服务器 /api/upload_avatar 限制请求体最大 1MB(1048576),
+    /// base64 会膨胀约 33%,原图过大会 413 导致"操作失败"。
+    func resizeAvatar(_ image: UIImage) -> Data? {
+        let maxSide: CGFloat = 512
+        let w = image.size.width
+        let h = image.size.height
+        let scale = min(1.0, maxSide / max(w, h))
+        let newW = max(1, Int(w * scale))
+        let newH = max(1, Int(h * scale))
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: newW, height: newH))
+        let resized = renderer.image { _ in
+            image.draw(in: CGRect(x: 0, y: 0, width: newW, height: newH))
+        }
+        return resized.pngData()
     }
 }
 
