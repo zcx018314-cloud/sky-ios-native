@@ -32,7 +32,9 @@ struct GlassBackground: View {
                 LinearGradient(
                     colors: isDay
                         ? [Color(hex: 0x55000000), Color(hex: 0x44000000), Color(hex: 0x66000000)]
-                        : [Color(hex: 0xAA0E1733), Color(hex: 0xCC0B1733), Color(hex: 0xAA0E1733)]
+                        : [Color(hex: 0xAA0E1733), Color(hex: 0xCC0B1733), Color(hex: 0xAA0E1733)],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
                 .frame(width: geo.size.width, height: geo.size.height)
                 // 顶部氛围光
@@ -40,7 +42,9 @@ struct GlassBackground: View {
                     LinearGradient(
                         colors: isDay
                             ? [Color(hex: 0xFFFFE8C8).opacity(0.22), Color.clear]
-                            : [Color.ambientViolet.opacity(0.18), Color.clear]
+                            : [Color.ambientViolet.opacity(0.18), Color.clear],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
                     .frame(height: 280)
                     Spacer()
