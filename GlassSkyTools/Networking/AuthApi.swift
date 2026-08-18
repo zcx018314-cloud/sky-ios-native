@@ -10,11 +10,13 @@ enum AuthApi {
         guard let url = URL(string: base + path) else {
             throw APIError(msg: "非法请求地址")
         }
-        var req = URLRequest(url: url, timeoutInterval: 15)
-        req.httpMethod = "POST"
-        req.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-        let (data, _) = try await URLSession.shared.data(for: req)
+        // iOS15 的 Foundation 缺 URLRequest.httpMethod 的 Swift setter 符号,
+        // 直接赋值会 dyld 启动崩溃(Symbol not found),改用 NSMutableURLRequest 绕开
+        let request = NSMutableURLRequest(url: url, timeoutInterval: 15)
+        request.httpMethod = "POST"
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, _) = try await URLSession.shared.data(for: request as URLRequest)
         return (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
     }
 

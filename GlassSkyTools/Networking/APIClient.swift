@@ -27,9 +27,11 @@ enum APIClient {
         guard let url = URL(string: urlString) else {
             throw APIError(msg: "非法请求地址")
         }
-        var req = URLRequest(url: url, timeoutInterval: 15)
-        req.httpMethod = "GET"
-        let (data, _) = try await URLSession.shared.data(for: req)
+        // iOS15 的 Foundation 缺 URLRequest.httpMethod 的 Swift setter 符号,
+        // 直接赋值会 dyld 启动崩溃(Symbol not found),改用 NSMutableURLRequest 绕开
+        let request = NSMutableURLRequest(url: url, timeoutInterval: 15)
+        request.httpMethod = "GET"
+        let (data, _) = try await URLSession.shared.data(for: request as URLRequest)
         return String(data: data, encoding: .utf8) ?? ""
     }
 
