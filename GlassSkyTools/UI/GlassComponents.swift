@@ -122,16 +122,17 @@ struct GlassTextField: View {
 
     var body: some View {
         TextField("", text: Binding(get: { value }, set: { onValueChange($0) }),
-                  prompt: Text(placeholder).foregroundColor(.textFaint))
+                  prompt: Text(placeholder).foregroundColor(.textSecondary))
             .foregroundColor(.textPrimary)
-            .font(.system(size: 15))
+            .font(.system(size: 15, weight: .medium))
             .padding(.horizontal, 18)
             .frame(height: 54)
-            .background(focused ? Color.white.opacity(0.10) : Color.white.opacity(0.05))
+            // 深色衬底:无论背景图是什么颜色,文字都有可读底色
+            .background(focused ? Color.black.opacity(0.42) : Color.black.opacity(0.30))
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(
                 focused
                     ? LinearGradient(colors: [.accentStart.opacity(0.9), .accentEnd.opacity(0.9)], startPoint: .top, endPoint: .bottom)
-                    : LinearGradient(colors: [.white.opacity(0.18), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom),
+                    : LinearGradient(colors: [.white.opacity(0.22), .white.opacity(0.10)], startPoint: .top, endPoint: .bottom),
                 lineWidth: 1))
             .clipShape(RoundedRectangle(cornerRadius: 18))
             .focused($focused)
