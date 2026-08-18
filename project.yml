@@ -15,8 +15,11 @@ targets:
     info:
       path: GlassSkyTools/Info.plist
       properties:
+        CFBundleShortVersionString: "1.0.2"
+        CFBundleVersion: "2"
         CFBundleDisplayName: 进阶助手
         LSRequiresIPhoneOS: true
+        UIRequiresFullScreen: true
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
           NSAllowsArbitraryLoadsInWebContent: true

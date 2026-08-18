@@ -5,6 +5,8 @@ import Foundation
 struct LoginScreen: View {
     var onSuccess: () -> Void
 
+    @ObservedObject private var crashReporter = CrashReporter.shared
+
     @State private var isRegister = false
     @State private var username = ""
     @State private var password = ""
@@ -81,6 +83,38 @@ struct LoginScreen: View {
             }
             .padding(.horizontal, 28)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .overlay(alignment: .top) { crashBanner }
+    }
+
+    // 展示上一次启动崩溃信息(截图发我即可定位)
+    @ViewBuilder
+    private var crashBanner: some View {
+        if let crash = crashReporter.lastCrash, !crash.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.white)
+                    Text("上次启动崩溃已记录(截图发我)")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white)
+                    Spacer()
+                    Button(action: { crashReporter.lastCrash = nil }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                }
+                ScrollView {
+                    Text(crash)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(maxHeight: 160)
+            }
+            .padding(12)
+            .background(Color.red.opacity(0.92))
+            .padding(.top, 8)
         }
     }
 

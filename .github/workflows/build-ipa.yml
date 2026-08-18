@@ -21,6 +21,8 @@ jobs:
       - name: Build archive (unsigned)
         run: |
           xcodebuild -scheme GlassSkyTools \
+            -destination 'generic/platform=iOS' \
+            -sdk iphoneos \
             -archivePath build/GlassSkyTools.xcarchive \
             archive -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
