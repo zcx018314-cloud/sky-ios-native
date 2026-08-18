@@ -1,0 +1,31 @@
+name: GlassSkyTools
+options:
+  bundleIdPrefix: com.sky.glasshelper
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+targets:
+  GlassSkyTools:
+    type: application
+    platform: iOS
+    sources:
+      - path: GlassSkyTools
+    info:
+      path: GlassSkyTools/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sky.glasshelper
+        PRODUCT_NAME: 进阶助手
+        INFOPLIST_FILE: GlassSkyTools/Info.plist
+        SWIFT_VERSION: "5.9"
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ENABLE_BITCODE: "NO"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGNING_ALLOWED: "NO"
+        DEVELOPMENT_TEAM: ""
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    scheme:
+      testTargets: []
