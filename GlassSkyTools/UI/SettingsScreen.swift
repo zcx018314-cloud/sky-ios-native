@@ -295,9 +295,12 @@ struct SettingsScreen: View {
         }
     }
 
-    /// 压缩头像到最长边 512px 再 PNG 编码:
+    /// 压缩头像到最长边 512px:
     /// 服务器 /api/upload_avatar 限制请求体最大 1MB(1048576),
-    /// base64 会膨胀约 33%,原图过大会 413 导致"操作失败"。
+    /// 服务器 /api/upload_avatar 限制请求体最大 1MB(1048576),base64 膨胀 ~33%。
+    /// 用 JPEG 0.85 而非 PNG:人眼无感但文件小 5-10 倍,稳过限制。
+    /// 服务器按 base64 解码后存为 /avatars/{id}.png 后缀,数据是 JPEG 也无妨——
+    /// iOS AsyncImage 内部按数据嗅探解码,后缀不影响显示。
     func resizeAvatar(_ image: UIImage) -> Data? {
         let maxSide: CGFloat = 512
         let w = image.size.width
@@ -309,7 +312,7 @@ struct SettingsScreen: View {
         let resized = renderer.image { _ in
             image.draw(in: CGRect(x: 0, y: 0, width: newW, height: newH))
         }
-        return resized.pngData()
+        return resized.jpegData(compressionQuality: 0.85)
     }
 }
 
