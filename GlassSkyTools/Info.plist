@@ -14,8 +14,4 @@
 	</dict>
 	<key>CFBundleDisplayName</key>
 	<string>进阶助手</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>voip</string>
-	</array>
 </dict>
