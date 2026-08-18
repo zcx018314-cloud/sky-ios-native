@@ -12,7 +12,7 @@ enum AuthApi {
         }
         // iOS15 的 Foundation 缺 URLRequest.httpMethod 的 Swift setter 符号,
         // 直接赋值会 dyld 启动崩溃(Symbol not found),改用 NSMutableURLRequest 绕开
-        let request = NSMutableURLRequest(url: url, timeoutInterval: 15)
+        let request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 15)
         request.httpMethod = "POST"
         request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)

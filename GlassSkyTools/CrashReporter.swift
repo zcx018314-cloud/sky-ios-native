@@ -10,6 +10,8 @@ final class CrashReporter: ObservableObject {
 
     private static let fileName = "last_crash.txt"
     private static var crashFD: Int32 = -1
+    // 必须持有 FileHandle, 否则其 fileDescriptor 会被立刻关闭
+    private static var crashHandle: FileHandle?
 
     private static func fileURL() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -27,10 +29,16 @@ final class CrashReporter: ObservableObject {
 
     /// 在 App 初始化时调用一次,安装异常/信号捕获
     func install() {
-        CrashReporter.crashFD = open((CrashReporter.fileURL().path as NSString).utf8String,
-                                     O_WRONLY | O_CREAT | O_TRUNC, 0o644)
+        // Swift 5.9+ 已把 open() 标记为 unavailable(variadic C 函数),
+        // 改用 FileManager 建空文件 + FileHandle 拿 fd;FileHandle 必须持有,否则 fd 关闭
+        let path = CrashReporter.fileURL().path
+        FileManager.default.createFile(atPath: path, contents: nil)
+        if let fh = FileHandle(forWritingAtPath: path) {
+            CrashReporter.crashHandle = fh
+            CrashReporter.crashFD = fh.fileDescriptor
+        }
         NSSetUncaughtExceptionHandler { exc in
-            let symbols = (exc.callStackSymbols as? [String]) ?? []
+            let symbols = exc.callStackSymbols
             let stack = symbols.joined(separator: "\n")
             let text = "EXCEPTION \(exc.name.rawValue): \(exc.reason ?? "?")\n\n\(stack)"
             try? text.write(to: CrashReporter.fileURL(), atomically: true, encoding: .utf8)
